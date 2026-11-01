@@ -7,25 +7,33 @@ import (
 	"errors"
 
 	"github.com/sawthorn/merch-wallet/internal/repository"
-	"github.com/sawthorn/merch-wallet/internal/repository/transactions"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var ErrPasswordMismatch = errors.New("passwords do not match")
 
 type AuthService struct {
-	userRepo  *repository.UserRepository
-	trManager *transactions.TransactionManager
+	userRepo  userRepository
+	trManager transactionManager
 }
 
 func NewAuthService(
-	userRepo *repository.UserRepository,
-	trManager *transactions.TransactionManager,
+	userRepo userRepository,
+	trManager transactionManager,
 ) *AuthService {
 	return &AuthService{
 		userRepo:  userRepo,
 		trManager: trManager,
 	}
+}
+
+type userRepository interface {
+	GetUserByUsername(context.Context, string) (*repository.User, error)
+	CreateUser(context.Context, string, string) (*repository.User, error)
+}
+
+type transactionManager interface {
+	RunInTx(context.Context, func(context.Context) error) error
 }
 
 func (as *AuthService) LoginOrRegisterUser(ctx context.Context, username, password string) (string, error) {
