@@ -29,7 +29,7 @@ func (t *TransactionManager) RunInTx(ctx context.Context, fn func(ctx context.Co
 		}
 		defer func() {
 			rollbackErr := tx.Rollback()
-			if !errors.Is(rollbackErr, sql.ErrTxDone) {
+			if rollbackErr != nil && !errors.Is(rollbackErr, sql.ErrTxDone) {
 				err = rollbackErr
 			}
 		}()
