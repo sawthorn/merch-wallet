@@ -1,6 +1,7 @@
 package repository
 
 type User struct {
+	id       int
 	username string
 	password string
 	balance  int
@@ -15,6 +16,12 @@ func NewUser(opts ...UserOpts) *User {
 	}
 
 	return u
+}
+
+func WithID(id int) UserOpts {
+	return func(u *User) {
+		u.id = id
+	}
 }
 
 func WithUsername(username string) UserOpts {
@@ -33,6 +40,10 @@ func WithBalance(balance uint) UserOpts {
 	return func(u *User) {
 		u.balance = int(balance)
 	}
+}
+
+func (u *User) ID() int {
+	return u.id
 }
 
 func (u *User) Username() string {
