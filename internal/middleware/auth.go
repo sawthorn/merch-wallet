@@ -39,3 +39,8 @@ func WithJWTAuth(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
+
+func GetUsernameFromCtx(ctx context.Context) (string, bool) {
+	username, ok := ctx.Value(usernameContextKey{}).(string)
+	return username, ok && username != ""
+}
