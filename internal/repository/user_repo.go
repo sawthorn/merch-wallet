@@ -9,9 +9,11 @@ import (
 	"github.com/sawthorn/merch-wallet/internal/repository/transactions"
 	"golang.org/x/crypto/bcrypt"
 )
+
 var (
 	ErrUserNotFound        = errors.New("user not found")
 	ErrUserAlreadyExists   = errors.New("user already exists")
+	ErrInsufficientBalance = errors.New("insufficient balance")
 	PasswordHashingCost    = 15
 )
 
@@ -74,4 +76,27 @@ func (ur *UserRepository) CreateUser(ctx context.Context, username, password str
 	}
 
 	return user, nil
+}
+
+func (ur *UserRepository) ChangeBalance(ctx context.Context, userID int, delta int) error {
+	tx := ur.executor.For(ctx)
+	res, err := tx.ExecContext(ctx, `
+		UPDATE users
+		SET balance = balance + $1
+		WHERE id = $2 AND balance + $1 >= 0
+		`, delta, userID)
+	if err != nil {
+		return err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return ErrInsufficientBalance
+	}
+
+	return nil
 }
