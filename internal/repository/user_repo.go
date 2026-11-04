@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sawthorn/merch-wallet/internal/repository/transactions"
+	"github.com/sawthorn/merch-wallet/internal/database/transactions"
 	"golang.org/x/crypto/bcrypt"
 )
 

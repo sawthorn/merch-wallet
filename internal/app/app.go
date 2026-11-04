@@ -11,7 +11,7 @@ import (
 	"github.com/sawthorn/merch-wallet/internal/middleware"
 	"github.com/sawthorn/merch-wallet/internal/purchase"
 	"github.com/sawthorn/merch-wallet/internal/repository"
-	"github.com/sawthorn/merch-wallet/internal/repository/transactions"
+	"github.com/sawthorn/merch-wallet/internal/database/transactions"
 	"github.com/sawthorn/merch-wallet/internal/transfer"
 )
 

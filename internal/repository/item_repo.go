@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/sawthorn/merch-wallet/internal/repository/transactions"
+	"github.com/sawthorn/merch-wallet/internal/database/transactions"
 )
 
 var ErrItemNotFound = errors.New("item not found")

@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/sawthorn/merch-wallet/internal/repository/transactions"
+	"github.com/sawthorn/merch-wallet/internal/database/transactions"
 )
 
 type PurchaseRepository struct {
