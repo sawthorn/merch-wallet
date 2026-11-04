@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/sawthorn/merch-wallet/internal/auth"
 	"github.com/sawthorn/merch-wallet/internal/middleware"
+	"github.com/sawthorn/merch-wallet/internal/purchase"
 	"github.com/sawthorn/merch-wallet/internal/repository"
 	"github.com/sawthorn/merch-wallet/internal/repository/transactions"
 	"github.com/sawthorn/merch-wallet/internal/transfer"
@@ -17,6 +18,7 @@ import (
 type App struct {
 	AuthService     *auth.AuthService
 	TransferService *transfer.TransferService
+	PurchaseService *purchase.PurchaseService
 }
 
 func NewApp(db *sql.DB) *App {
@@ -26,15 +28,26 @@ func NewApp(db *sql.DB) *App {
 
 	// repos setup
 	userRepo := repository.NewUserRepository(executor)
-	transferRepo := repository.NewTransferRepository(*executor)
+	transferRepo := repository.NewTransferRepository(executor)
+	itemRepo := repository.NewItemRepository(executor)
+	purchaseRepo := repository.NewPurchaseRepository(executor)
+	inventoryRepo := repository.NewInventoryRepository(executor)
 
 	// services setup
 	authService := auth.NewAuthService(userRepo, trManager)
 	transferService := transfer.NewTransferService(userRepo, transferRepo, trManager)
+	purchaseService := purchase.NewPurchaseService(
+		userRepo,
+		itemRepo,
+		purchaseRepo,
+		inventoryRepo,
+		trManager,
+	)
 
 	return &App{
 		AuthService:     authService,
 		TransferService: transferService,
+		PurchaseService: purchaseService,
 	}
 }
 
@@ -46,8 +59,10 @@ func (a *App) SetupRouter() *http.ServeMux {
 	rootMux.HandleFunc("POST /api/sendCoin",
 		middleware.WithJWTAuth(a.TransferService.TransferCoins),
 	)
+	rootMux.HandleFunc("GET /api/buy/{item}",
+		middleware.WithJWTAuth(a.PurchaseService.BuyItemHandler),
+	)
 	rootMux.HandleFunc("GET /api/info", func(w http.ResponseWriter, r *http.Request) {})
-	rootMux.HandleFunc("GET /api/buy/{item}", func(w http.ResponseWriter, r *http.Request) {})
 
 	return rootMux
 }
