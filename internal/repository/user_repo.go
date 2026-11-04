@@ -28,9 +28,9 @@ func NewUserRepository(executor *transactions.DBExecutor) *UserRepository {
 }
 
 func (ur *UserRepository) GetUserByUsername(ctx context.Context, username string) (*User, error) {
-	tx := ur.executor.For(ctx)
+	ex := ur.executor.For(ctx)
 	user := &User{}
-	err := tx.QueryRowContext(ctx, `
+	err := ex.QueryRowContext(ctx, `
 		SELECT id, username, password, balance
 		FROM users
 		WHERE username=$1
