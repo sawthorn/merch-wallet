@@ -40,14 +40,10 @@ func (ur *UserRepository) GetUserByUsername(ctx context.Context, username string
 		&user.password,
 		&user.balance,
 	)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrUserNotFound
-		}
-		return nil, err
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrUserNotFound
 	}
-
-	return user, nil
+	return user, err
 }
 
 func (ur *UserRepository) CreateUser(ctx context.Context, username, password string) (*User, error) {

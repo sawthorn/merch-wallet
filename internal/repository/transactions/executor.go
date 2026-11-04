@@ -12,18 +12,18 @@ type DBTX interface {
 }
 
 type DBExecutor struct {
-	db *sql.DB
+	defaultExecutor *sql.DB
 }
 
 func NewDBExecutor(db *sql.DB) *DBExecutor {
-	return &DBExecutor{db: db}
+	return &DBExecutor{defaultExecutor: db}
 }
 
 func (e *DBExecutor) For(ctx context.Context) DBTX {
 	if tx, ok := transactionFromContext(ctx); ok {
 		return tx
 	}
-	return e.db
+	return e.defaultExecutor
 }
 
 type txContextKey struct{}

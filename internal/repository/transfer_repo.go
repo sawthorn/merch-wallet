@@ -7,10 +7,10 @@ import (
 )
 
 type TransferRepository struct {
-	executor transactions.DBExecutor
+	executor *transactions.DBExecutor
 }
 
-func NewTransferRepository(executor transactions.DBExecutor) *TransferRepository {
+func NewTransferRepository(executor *transactions.DBExecutor) *TransferRepository {
 	return &TransferRepository{
 		executor: executor,
 	}
