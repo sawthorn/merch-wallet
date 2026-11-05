@@ -19,7 +19,7 @@ type userRepository interface {
 }
 
 type transferRepository interface {
-	CreateTransfer(ctx context.Context, transfer *repository.Transfer) error
+	CreateTransfer(ctx context.Context, from int, to int, amount int) error
 }
 
 type transactionManager interface {
@@ -79,8 +79,7 @@ func (ts *TransferService) TransferCoinsToUser(ctx context.Context, fromUsername
 			return fmt.Errorf("reciever IncreaseBalance failed: %w", err)
 		}
 
-		transfer := repository.NewTransfer(fromUser.ID(), toUser.ID(), amount)
-		err = ts.transferRepo.CreateTransfer(ctx, transfer)
+		err = ts.transferRepo.CreateTransfer(ctx, fromUser.ID(), toUser.ID(), amount)
 		if err != nil {
 			return fmt.Errorf("create transfer record failed: %w", err)
 		}

@@ -19,12 +19,12 @@ func NewTransferRepository(executor *transactions.DBExecutor) *TransferRepositor
 	}
 }
 
-func (tr *TransferRepository) CreateTransfer(ctx context.Context, transfer *Transfer) error {
+func (tr *TransferRepository) CreateTransfer(ctx context.Context, from int, to int, amount int) error {
 	ex := tr.executor.For(ctx)
 	_, err := ex.ExecContext(ctx, `
 		INSERT INTO transfers(from_user_id, to_user_id, amount)
 		VALUES($1, $2, $3)
-		`, transfer.fromID, transfer.toID, transfer.amount)
+		`, from, to, amount)
 	return err
 }
 
