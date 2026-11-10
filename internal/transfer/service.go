@@ -9,8 +9,10 @@ import (
 )
 
 var (
-	ErrInsufficientBalance = errors.New("not enough balance to perform this operation")
-	ErrRecipientNotFound   = errors.New("recipient not found")
+	ErrInsufficientBalance      = errors.New("not enough balance to perform this operation")
+	ErrRecipientNotFound        = errors.New("recipient not found")
+	ErrTransferToSelfProhibited = errors.New("transfer to self prohibited")
+	ErrInvalidTransferAmount    = errors.New("invalid transfer amount")
 )
 
 type userRepository interface {
@@ -46,6 +48,12 @@ func NewTransferService(
 
 func (ts *TransferService) TransferCoinsToUser(ctx context.Context, fromUsername string, toUsername string, amount int) error {
 	return ts.trManager.RunInTx(ctx, func(ctx context.Context) error {
+		if amount <= 0 {
+			return ErrInvalidTransferAmount
+		}
+		if fromUsername == toUsername {
+			return ErrTransferToSelfProhibited
+		}
 		fromUser, err := ts.userRepo.GetUserByUsername(ctx, fromUsername)
 		if err != nil {
 			return err

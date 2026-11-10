@@ -16,12 +16,6 @@ type TransferRequest struct {
 	Amount *int    `json:"amount"`
 }
 
-func (tr *TransferRequest) Valid() bool {
-	notEmpty := tr.ToUser != nil && tr.Amount != nil
-	positiveAmount := *tr.Amount > 0
-	return notEmpty && positiveAmount
-}
-
 func (ts *TransferService) TransferCoins(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Merhod not allowed", http.StatusMethodNotAllowed)
@@ -30,13 +24,13 @@ func (ts *TransferService) TransferCoins(w http.ResponseWriter, r *http.Request)
 
 	reader := http.MaxBytesReader(w, r.Body, TransferMaxBytes)
 	defer reader.Close()
-	var transferInfo TransferRequest
-	if err := json.NewDecoder(reader).Decode(&transferInfo); err != nil {
+	var req TransferRequest
+	if err := json.NewDecoder(reader).Decode(&req); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
-	if !transferInfo.Valid() {
+	if req.ToUser == nil || req.Amount == nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
@@ -54,8 +48,8 @@ func (ts *TransferService) TransferCoins(w http.ResponseWriter, r *http.Request)
 	err := ts.TransferCoinsToUser(
 		r.Context(),
 		fromUsername,
-		*transferInfo.ToUser,
-		*transferInfo.Amount,
+		*req.ToUser,
+		*req.Amount,
 	)
 
 	if errors.Is(err, ErrRecipientNotFound) {
@@ -64,6 +58,10 @@ func (ts *TransferService) TransferCoins(w http.ResponseWriter, r *http.Request)
 	}
 	if errors.Is(err, ErrInsufficientBalance) {
 		http.Error(w, ErrInsufficientBalance.Error(), http.StatusBadRequest)
+		return
+	}
+	if errors.Is(err, ErrTransferToSelfProhibited) {
+		http.Error(w, ErrTransferToSelfProhibited.Error(), http.StatusBadRequest)
 		return
 	}
 	if err != nil {
