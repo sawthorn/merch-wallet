@@ -6,6 +6,10 @@ type Item struct {
 	cost int
 }
 
+func NewItem(id int, name string, cost int) *Item {
+	return &Item{id: id, name: name, cost: cost}
+}
+
 func (i *Item) ID() int {
 	return i.id
 }
