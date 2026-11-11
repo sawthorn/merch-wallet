@@ -52,7 +52,7 @@ func NewUserInfoResponse(userInfo *UserInfo) *InfoResponse {
 			})
 	}
 
-	for _, tr := range userInfo.TransferReceived {
+	for _, tr := range userInfo.TransferRecieved {
 		response.TransferHistory.Received = append(
 			response.TransferHistory.Received,
 			TransferReceivedResponse{

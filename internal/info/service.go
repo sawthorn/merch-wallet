@@ -45,7 +45,7 @@ type UserInfo struct {
 	Balance          int
 	Inventory        []InventoryItem
 	TransferSent     []TransferHistoryEntry
-	TransferReceived []TransferHistoryEntry
+	TransferRecieved []TransferHistoryEntry
 }
 
 type InventoryItem struct {
@@ -88,7 +88,7 @@ func (is *InfoService) CollectUserInformation(ctx context.Context, username stri
 		return nil, err
 	}
 
-	received, err := is.transferRepo.GetReceivedHistory(ctx, user.ID())
+	recieved, err := is.transferRepo.GetReceivedHistory(ctx, user.ID())
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +101,8 @@ func (is *InfoService) CollectUserInformation(ctx context.Context, username stri
 		})
 	}
 
-	for _, tr := range received {
-		userInfo.TransferSent = append(userInfo.TransferReceived, TransferHistoryEntry{
+	for _, tr := range recieved {
+		userInfo.TransferRecieved = append(userInfo.TransferRecieved, TransferHistoryEntry{
 			Username:  tr.Username(),
 			Amount:    tr.Amount(),
 			CreatedAt: tr.CreatedAt(),

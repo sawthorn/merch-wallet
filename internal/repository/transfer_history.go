@@ -8,6 +8,13 @@ type TransferHistoryEntry struct {
 	createdAt time.Time
 }
 
+func NewTransferHistoryEntry(username string, amount uint) TransferHistoryEntry {
+	return TransferHistoryEntry{
+		username: username,
+		amount:   int(amount),
+	}
+}
+
 func (th *TransferHistoryEntry) Username() string {
 	return th.username
 }
