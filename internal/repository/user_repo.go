@@ -81,6 +81,14 @@ func (ur *UserRepository) CreateUser(ctx context.Context, username, password str
 
 func (ur *UserRepository) ChangeBalance(ctx context.Context, userID int, delta int) error {
 	tx := ur.executor.For(ctx)
+	err := tx.QueryRowContext(ctx, `
+		SELECT FROM users
+		WHERE id = $1
+		FOR UPDATE;
+		`, userID).Scan()
+	if err != nil {
+		return ErrUserNotFound
+	}
 	res, err := tx.ExecContext(ctx, `
 		UPDATE users
 		SET balance = balance + $1
