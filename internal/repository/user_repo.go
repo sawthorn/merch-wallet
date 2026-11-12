@@ -14,6 +14,7 @@ var (
 	ErrUserNotFound        = errors.New("user not found")
 	ErrUserAlreadyExists   = errors.New("user already exists")
 	ErrInsufficientBalance = errors.New("insufficient balance")
+	ErrEmptyPassword       = errors.New("empty password provided")
 	PasswordHashingCost    = 15
 )
 
@@ -48,6 +49,10 @@ func (ur *UserRepository) GetUserByUsername(ctx context.Context, username string
 
 func (ur *UserRepository) CreateUser(ctx context.Context, username, password string) (*User, error) {
 	tx := ur.executor.For(ctx)
+	if password == "" {
+		return nil, ErrEmptyPassword
+	}
+
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), PasswordHashingCost)
 	if err != nil {
 		return nil, fmt.Errorf("password hashing failed: %w", err)
@@ -64,10 +69,10 @@ func (ur *UserRepository) CreateUser(ctx context.Context, username, password str
 		&user.password,
 		&user.balance,
 	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrUserAlreadyExists
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrUserAlreadyExists
-		}
 		return nil, fmt.Errorf("user insert failed: %w", err)
 	}
 
