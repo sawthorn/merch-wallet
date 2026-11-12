@@ -185,7 +185,7 @@ func TestTransfer_RecipientNotFound(t *testing.T) {
 		"B",
 		transferAmount,
 	)
-	require.ErrorIs(t, err, ErrRecipientNotFound)
+	require.ErrorIs(t, err, ErrUserNotFound)
 }
 
 func TestTransfer_TransferToSelfRestricted(t *testing.T) {

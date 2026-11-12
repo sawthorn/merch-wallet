@@ -52,8 +52,8 @@ func (ts *TransferService) TransferCoins(w http.ResponseWriter, r *http.Request)
 		*req.Amount,
 	)
 
-	if errors.Is(err, ErrRecipientNotFound) {
-		http.Error(w, ErrRecipientNotFound.Error(), http.StatusBadRequest)
+	if errors.Is(err, ErrUserNotFound) {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	if errors.Is(err, ErrInsufficientBalance) {

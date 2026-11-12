@@ -10,7 +10,7 @@ import (
 
 var (
 	ErrInsufficientBalance      = errors.New("not enough balance to perform this operation")
-	ErrRecipientNotFound        = errors.New("recipient not found")
+	ErrUserNotFound             = errors.New("user not found")
 	ErrTransferToSelfProhibited = errors.New("transfer to self prohibited")
 	ErrInvalidTransferAmount    = errors.New("invalid transfer amount")
 )
@@ -69,22 +69,38 @@ func (ts *TransferService) TransferCoinsToUser(ctx context.Context, fromUsername
 
 		toUser, err := ts.userRepo.GetUserByUsername(ctx, toUsername)
 		if errors.Is(err, repository.ErrUserNotFound) {
-			return ErrRecipientNotFound
+			return ErrUserNotFound
 		}
 		if err != nil {
 			return err
 		}
 
-		err = ts.userRepo.ChangeBalance(ctx, fromUser.ID(), -amount)
-		if errors.Is(err, repository.ErrInsufficientBalance) {
-			return ErrInsufficientBalance
+		// repeatable order to prevent deadlocks
+		type balanceChangeInfo struct {
+			id     int
+			amount int
 		}
-		if err != nil {
-			return fmt.Errorf("sender DecreaseBalance failed: %w", err)
+
+		first := balanceChangeInfo{
+			fromUser.ID(),
+			-amount,
 		}
-		err = ts.userRepo.ChangeBalance(ctx, toUser.ID(), amount)
-		if err != nil {
-			return fmt.Errorf("reciever IncreaseBalance failed: %w", err)
+
+		second := balanceChangeInfo{
+			toUser.ID(),
+			amount,
+		}
+
+		if first.id > second.id {
+			first, second = second, first
+		}
+
+		if err := ts.userRepo.ChangeBalance(ctx, first.id, first.amount); err != nil {
+			return mapBalanceChangeError(err)
+		}
+
+		if err := ts.userRepo.ChangeBalance(ctx, second.id, second.amount); err != nil {
+			return mapBalanceChangeError(err)
 		}
 
 		err = ts.transferRepo.CreateTransfer(ctx, fromUser.ID(), toUser.ID(), amount)
@@ -94,4 +110,17 @@ func (ts *TransferService) TransferCoinsToUser(ctx context.Context, fromUsername
 
 		return nil
 	})
+}
+
+func mapBalanceChangeError(err error) error {
+	switch {
+	case errors.Is(err, repository.ErrInsufficientBalance):
+		return ErrInsufficientBalance
+	case errors.Is(err, repository.ErrUserNotFound):
+		return ErrUserNotFound
+	case err != nil:
+		return fmt.Errorf("balance change failed: %w", err)
+	default:
+		return nil
+	}
 }
