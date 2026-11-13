@@ -86,7 +86,7 @@ func TestInventoryRepo_AddItemToUserInventory(t *testing.T) {
 				tc.userID, tc.itemID,
 			)
 			if tc.wantErr != nil {
-				assert.ErrorIs(t, tc.wantErr, err)
+				assert.ErrorIs(t, err, tc.wantErr)
 			} else {
 				assert.NoError(t, err)
 			}

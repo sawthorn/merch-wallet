@@ -13,6 +13,10 @@ import (
 )
 
 func TestPurchaseRepo_CreatePurchase(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping in short mode")
+	}
+
 	dsn := testutils.StartPostgres(t)
 	testutils.RunMigrations(t, dsn)
 
@@ -87,7 +91,7 @@ func TestPurchaseRepo_CreatePurchase(t *testing.T) {
 				tc.itemID,
 			)
 			if tc.wantErr != nil {
-				assert.ErrorIs(t, tc.wantErr, err)
+				assert.ErrorIs(t, err, tc.wantErr)
 			} else {
 				assert.NoError(t, err)
 

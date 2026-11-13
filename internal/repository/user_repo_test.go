@@ -156,7 +156,7 @@ func TestUserRepo_ChangeBalance(t *testing.T) {
 			)
 
 			if tc.wantErr != nil {
-				assert.ErrorIs(t, tc.wantErr, err)
+				assert.ErrorIs(t, err, tc.wantErr)
 				return
 			}
 			assert.NoError(t, err)

@@ -53,6 +53,6 @@ func TestItemRepo_GetItemByName(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	item, err = itemRepo.GetItemByName(ctx, itemName)
-	require.ErrorIs(t, context.Canceled, err)
+	require.ErrorIs(t, err, context.Canceled)
 	require.Nil(t, item)
 }
