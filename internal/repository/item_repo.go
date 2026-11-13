@@ -35,5 +35,8 @@ func (ir *ItemRepository) GetItemByName(ctx context.Context, itemName string) (*
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrItemNotFound
 	}
-	return item, err
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
 }
