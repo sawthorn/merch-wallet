@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
+	"errors"
 
+	"github.com/lib/pq"
 	"github.com/sawthorn/merch-wallet/internal/database/transactions"
 )
 
@@ -14,6 +16,20 @@ func NewInventoryRepository(ex *transactions.DBExecutor) *InventoryRepository {
 	return &InventoryRepository{executor: ex}
 }
 
+func mapPGErrorToRepoError(err error) error {
+	if pgErr, ok := errors.AsType[*pq.Error](err); ok {
+		if pgErr.Code == "23503" { // FK constraint violation
+			if pgErr.Constraint == "inventory_user_id_fkey" {
+				return ErrUserNotFound
+			}
+			if pgErr.Constraint == "inventory_item_id_fkey" {
+				return ErrItemNotFound
+			}
+		}
+	}
+	return err
+}
+
 func (ir *InventoryRepository) AddItemToUserInventory(ctx context.Context, userID int, itemID int) error {
 	ex := ir.executor.For(ctx)
 	_, err := ex.ExecContext(ctx, `
@@ -23,7 +39,7 @@ func (ir *InventoryRepository) AddItemToUserInventory(ctx context.Context, userI
 		DO UPDATE SET
 			quantity = inventory.quantity + 1
 		`, userID, itemID)
-	return err
+	return mapPGErrorToRepoError(err)
 }
 
 func (ir *InventoryRepository) GetUserInventory(ctx context.Context, userID int) ([]InventoryItem, error) {
@@ -35,7 +51,7 @@ func (ir *InventoryRepository) GetUserInventory(ctx context.Context, userID int)
 		ORDER BY name
 		`, userID)
 	if err != nil {
-		return nil, err
+		return nil, mapPGErrorToRepoError(err)
 	}
 
 	inv := []InventoryItem{}
@@ -45,7 +61,7 @@ func (ir *InventoryRepository) GetUserInventory(ctx context.Context, userID int)
 		inv = append(inv, item)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, mapPGErrorToRepoError(err)
 	}
 
 	return inv, nil
