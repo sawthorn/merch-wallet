@@ -20,5 +20,5 @@ func (pr *PurchaseRepository) CreatePurchase(ctx context.Context, userID int, it
 		INSERT INTO purchases(user_id, item_id)
 		VALUES($1, $2)
 		`, userID, itemID)
-	return err
+	return mapPGErrorToRepoError(err)
 }

@@ -25,7 +25,7 @@ func (tr *TransferRepository) CreateTransfer(ctx context.Context, from int, to i
 		INSERT INTO transfers(from_user_id, to_user_id, amount)
 		VALUES($1, $2, $3)
 		`, from, to, amount)
-	return err
+	return mapPGErrorToRepoError(err)
 }
 
 func (tr *TransferRepository) GetReceivedHistory(ctx context.Context, userID int) ([]TransferHistoryEntry, error) {
