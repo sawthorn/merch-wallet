@@ -2,9 +2,6 @@ package repository
 
 import (
 	"context"
-	"database/sql"
-	"errors"
-	"time"
 
 	"github.com/sawthorn/merch-wallet/internal/database/transactions"
 )
@@ -29,68 +26,46 @@ func (tr *TransferRepository) CreateTransfer(ctx context.Context, from int, to i
 }
 
 func (tr *TransferRepository) GetReceivedHistory(ctx context.Context, userID int) ([]TransferHistoryEntry, error) {
-	ex := tr.executor.For(ctx)
-	rows, err := ex.QueryContext(ctx, `
-		SELECT username, amount, created_at
+	query := `SELECT username, amount, created_at
 		FROM transfers t JOIN users u ON t.from_user_id = u.id 
 		WHERE to_user_id = $1
-		`, userID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return []TransferHistoryEntry{}, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	recievedTr := []TransferHistoryEntry{}
-	for rows.Next() {
-		transfer := TransferHistoryEntry{}
-		var tsStr string
-		err := rows.Scan(&transfer.username, &transfer.amount, &tsStr)
-		if err != nil {
-			return nil, err
-		}
-		transfer.createdAt, err = time.Parse(time.RFC3339Nano, tsStr)
-		if err != nil {
-			return nil, err
-		}
-		recievedTr = append(recievedTr, transfer)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return recievedTr, nil
+		ORDER BY created_at DESC
+		`
+	return tr.getHistory(ctx, userID, query)
 }
 
 func (tr *TransferRepository) GetSentHistory(ctx context.Context, userID int) ([]TransferHistoryEntry, error) {
-	ex := tr.executor.For(ctx)
-	rows, err := ex.QueryContext(ctx, `
-		SELECT username, amount, created_at
+	query := `SELECT username, amount, created_at
 		FROM transfers t JOIN users u ON t.to_user_id = u.id 
 		WHERE from_user_id = $1
-		`, userID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return []TransferHistoryEntry{}, nil
-	}
+		ORDER BY created_at DESC
+		`
+	return tr.getHistory(ctx, userID, query)
+}
+
+func (tr *TransferRepository) getHistory(ctx context.Context, userID int, query string) ([]TransferHistoryEntry, error) {
+	ex := tr.executor.For(ctx)
+	rows, err := ex.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
-	sentTr := []TransferHistoryEntry{}
+	defer rows.Close()
+
+	trHistory := []TransferHistoryEntry{}
 	for rows.Next() {
 		transfer := TransferHistoryEntry{}
-		var tsStr string
-		err := rows.Scan(&transfer.username, &transfer.amount, &tsStr)
+		err := rows.Scan(
+			&transfer.username,
+			&transfer.amount,
+			&transfer.createdAt,
+		)
 		if err != nil {
 			return nil, err
 		}
-		transfer.createdAt, err = time.Parse(time.RFC3339Nano, tsStr)
-		if err != nil {
-			return nil, err
-		}
-		sentTr = append(sentTr, transfer)
+		trHistory = append(trHistory, transfer)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	return sentTr, nil
+	return trHistory, nil
 }
