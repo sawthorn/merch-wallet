@@ -1,3 +1,5 @@
+//go:build integration
+
 package repository_test
 
 import (
@@ -13,9 +15,6 @@ import (
 )
 
 func TestUserRepo_GetByUsername(t *testing.T) {
-	if testing.Short() {
-		t.Skip("Skipping in short mode")
-	}
 	dsn := testutils.StartPostgres(t)
 	testutils.RunMigrations(t, dsn)
 
@@ -47,9 +46,6 @@ func TestUserRepo_GetByUsername(t *testing.T) {
 }
 
 func TestUserRepo_CreateUser(t *testing.T) {
-	if testing.Short() {
-		t.Skip("Skipping in short mode")
-	}
 	dsn := testutils.StartPostgres(t)
 	testutils.RunMigrations(t, dsn)
 
@@ -98,9 +94,6 @@ func TestUserRepo_CreateUser(t *testing.T) {
 }
 
 func TestUserRepo_ChangeBalance(t *testing.T) {
-	if testing.Short() {
-		t.Skip("Skipping in short mode")
-	}
 	dsn := testutils.StartPostgres(t)
 	testutils.RunMigrations(t, dsn)
 

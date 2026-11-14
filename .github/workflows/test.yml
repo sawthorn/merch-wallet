@@ -11,6 +11,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -20,5 +21,10 @@ jobs:
         with:
           go-version-file: "go.mod"
 
+      - name: Install Goose
+        run: |
+          go install github.com/pressly/goose/v3/cmd/goose@v3.29.0
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
       - name: Run tests
-        run: go test ./...
+        run: go test -tags=integration -timeout=20m ./...

@@ -1,3 +1,5 @@
+//go:build integration
+
 package repository_test
 
 import (
@@ -13,10 +15,6 @@ import (
 )
 
 func TestItemRepo_GetItemByName(t *testing.T) {
-	if testing.Short() {
-		t.Skip("Skipping in short mode")
-	}
-
 	dsn := testutils.StartPostgres(t)
 	testutils.RunMigrations(t, dsn)
 
