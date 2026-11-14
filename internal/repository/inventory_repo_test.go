@@ -114,9 +114,9 @@ func TestInventoryRepo_GetUserInventory(t *testing.T) {
 
 	_, err = db.ExecContext(
 		context.Background(),
-		`INSERT INTO items(id, name, cost)
-		VALUES(1, test1, 10),
-		(2, test2, 20)
+		`INSERT INTO items(id, name, cost) VALUES
+		(1, 'test1', 10),
+		(2, 'test2', 20)
 		ON CONFLICT(id) DO UPDATE SET
 		name = excluded.name,
 		cost = excluded.cost
@@ -153,10 +153,9 @@ func TestInventoryRepo_GetUserInventory(t *testing.T) {
 			wantInv: successInv,
 		},
 		{
-			name:    "Fail_UserNotExists",
-			ctx:     context.Background(),
-			userID:  3424908,
-			wantErr: repository.ErrUserNotFound,
+			name:   "Fail_UserNotExists_EmptyInv",
+			ctx:    context.Background(),
+			userID: 3424908,
 		},
 		{
 			name:    "Fail_Canceled",

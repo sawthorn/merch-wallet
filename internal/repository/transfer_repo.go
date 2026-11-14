@@ -54,18 +54,17 @@ func (tr *TransferRepository) getHistory(ctx context.Context, userID int, query 
 	trHistory := []TransferHistoryEntry{}
 	for rows.Next() {
 		transfer := TransferHistoryEntry{}
-		err := rows.Scan(
+		if err := rows.Scan(
 			&transfer.username,
 			&transfer.amount,
 			&transfer.createdAt,
-		)
-		if err != nil {
-			return nil, err
+		); err != nil {
+			return trHistory, err
 		}
 		trHistory = append(trHistory, transfer)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return trHistory, err
 	}
 	return trHistory, nil
 }

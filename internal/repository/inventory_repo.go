@@ -37,15 +37,18 @@ func (ir *InventoryRepository) GetUserInventory(ctx context.Context, userID int)
 	if err != nil {
 		return nil, mapPGErrorToRepoError(err)
 	}
+	defer rows.Close()
 
 	inv := []InventoryItem{}
 	for rows.Next() {
 		item := InventoryItem{}
-		rows.Scan(&item.name, &item.quantity)
+		if err := rows.Scan(&item.name, &item.quantity); err != nil {
+			return inv, mapPGErrorToRepoError(err)
+		}
 		inv = append(inv, item)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, mapPGErrorToRepoError(err)
+		return inv, mapPGErrorToRepoError(err)
 	}
 
 	return inv, nil
