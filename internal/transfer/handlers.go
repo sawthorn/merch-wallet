@@ -18,7 +18,7 @@ type TransferRequest struct {
 
 func (ts *TransferService) TransferCoins(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Merhod not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -58,6 +58,10 @@ func (ts *TransferService) TransferCoins(w http.ResponseWriter, r *http.Request)
 	}
 	if errors.Is(err, ErrInsufficientBalance) {
 		http.Error(w, ErrInsufficientBalance.Error(), http.StatusBadRequest)
+		return
+	}
+	if errors.Is(err, ErrInvalidTransferAmount) {
+		http.Error(w, ErrInvalidTransferAmount.Error(), http.StatusBadRequest)
 		return
 	}
 	if errors.Is(err, ErrTransferToSelfProhibited) {
