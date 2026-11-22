@@ -104,37 +104,39 @@ func TestTransfer_Circular(t *testing.T) {
 			}
 			resp.Body.Close()
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-			req, err = http.NewRequest(
-				http.MethodGet,
-				env.serverURL+"/api/info",
-				nil,
-			)
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			req.Header.Set("Authorization", "Bearer "+r.token)
-
-			resp, err = http.DefaultClient.Do(req)
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			defer resp.Body.Close()
-			assert.Equal(t, http.StatusOK, resp.StatusCode)
-			infoResp := info.InfoResponse{}
-			err = json.NewDecoder(resp.Body).Decode(&infoResp)
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			assert.Equal(t, balanceByDefault-r.body.Amount, infoResp.Balance)
 		}()
 	}
 
 	close(start)
 	wg.Wait()
+
+	for _, r := range requests {
+		req, err := http.NewRequest(
+			http.MethodGet,
+			env.serverURL+"/api/info",
+			nil,
+		)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		req.Header.Set("Authorization", "Bearer "+r.token)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		defer resp.Body.Close()
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		infoResp := info.InfoResponse{}
+		err = json.NewDecoder(resp.Body).Decode(&infoResp)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		assert.Equal(t, balanceByDefault, infoResp.Balance)
+	}
 }
 
 func TestTransfer_BadAmount(t *testing.T) {
@@ -208,6 +210,7 @@ func makeUserAuthReq(
 	username string,
 	password string,
 ) (token string) {
+	t.Helper()
 	bodyBytes, err := json.Marshal(AuthRequest{
 		Username: username,
 		Password: password,
