@@ -25,7 +25,7 @@ type transferRepository interface {
 }
 
 type transactionManager interface {
-	RunInTx(ctx context.Context, fn func(ctx context.Context) error) error
+	RunInTxWithRetry(ctx context.Context, fn func(ctx context.Context) error) error
 }
 
 type TransferService struct {
@@ -47,7 +47,7 @@ func NewTransferService(
 }
 
 func (ts *TransferService) TransferCoinsToUser(ctx context.Context, fromUsername string, toUsername string, amount int) error {
-	return ts.trManager.RunInTx(ctx, func(ctx context.Context) error {
+	return ts.trManager.RunInTxWithRetry(ctx, func(ctx context.Context) error {
 		if amount <= 0 {
 			return ErrInvalidTransferAmount
 		}
@@ -61,10 +61,6 @@ func (ts *TransferService) TransferCoinsToUser(ctx context.Context, fromUsername
 
 		if fromUser.Balance() < amount {
 			return ErrInsufficientBalance
-		}
-
-		if errors.Is(ctx.Err(), context.Canceled) {
-			return nil
 		}
 
 		toUser, err := ts.userRepo.GetUserByUsername(ctx, toUsername)

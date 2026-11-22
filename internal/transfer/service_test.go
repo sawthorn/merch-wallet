@@ -32,7 +32,7 @@ func (r *mockTransferRepo) CreateTransfer(ctx context.Context, from int, to int,
 
 type mockTxManager struct{}
 
-func (m *mockTxManager) RunInTx(ctx context.Context, fn func(context.Context) error) error {
+func (m *mockTxManager) RunInTxWithRetry(ctx context.Context, fn func(context.Context) error) error {
 	return fn(ctx)
 }
 
