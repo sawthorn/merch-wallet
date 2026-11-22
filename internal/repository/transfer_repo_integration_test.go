@@ -9,14 +9,13 @@ import (
 	"github.com/sawthorn/merch-wallet/internal/database"
 	"github.com/sawthorn/merch-wallet/internal/database/transactions"
 	"github.com/sawthorn/merch-wallet/internal/repository"
-	"github.com/sawthorn/merch-wallet/internal/testutils"
+	"github.com/sawthorn/merch-wallet/internal/tests/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestTransferRepo_CreateTransfer(t *testing.T) {
 	dsn := testutils.StartPostgres(t)
-	testutils.RunMigrations(t, dsn)
 
 	conn := database.NewPostgresConnectionWithDSN(dsn)
 	ex := transactions.NewDBExecutor(conn)
@@ -100,7 +99,6 @@ func TestTransferRepo_CreateTransfer(t *testing.T) {
 
 func TestTransferRepo_GetHistory_Both(t *testing.T) {
 	dsn := testutils.StartPostgres(t)
-	testutils.RunMigrations(t, dsn)
 
 	conn := database.NewPostgresConnectionWithDSN(dsn)
 	ex := transactions.NewDBExecutor(conn)

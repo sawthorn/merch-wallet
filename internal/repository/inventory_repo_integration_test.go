@@ -9,14 +9,13 @@ import (
 	"github.com/sawthorn/merch-wallet/internal/database"
 	"github.com/sawthorn/merch-wallet/internal/database/transactions"
 	"github.com/sawthorn/merch-wallet/internal/repository"
-	"github.com/sawthorn/merch-wallet/internal/testutils"
+	"github.com/sawthorn/merch-wallet/internal/tests/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestInventoryRepo_AddItemToUserInventory(t *testing.T) {
 	dsn := testutils.StartPostgres(t)
-	testutils.RunMigrations(t, dsn)
 
 	db := database.NewPostgresConnectionWithDSN(dsn)
 	ex := transactions.NewDBExecutor(db)
@@ -98,7 +97,6 @@ func TestInventoryRepo_AddItemToUserInventory(t *testing.T) {
 
 func TestInventoryRepo_GetUserInventory(t *testing.T) {
 	dsn := testutils.StartPostgres(t)
-	testutils.RunMigrations(t, dsn)
 
 	db := database.NewPostgresConnectionWithDSN(dsn)
 	ex := transactions.NewDBExecutor(db)

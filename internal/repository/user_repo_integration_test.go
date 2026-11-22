@@ -9,14 +9,13 @@ import (
 	"github.com/sawthorn/merch-wallet/internal/database"
 	"github.com/sawthorn/merch-wallet/internal/database/transactions"
 	"github.com/sawthorn/merch-wallet/internal/repository"
-	"github.com/sawthorn/merch-wallet/internal/testutils"
+	"github.com/sawthorn/merch-wallet/internal/tests/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestUserRepo_GetByUsername(t *testing.T) {
 	dsn := testutils.StartPostgres(t)
-	testutils.RunMigrations(t, dsn)
 
 	db := database.NewPostgresConnectionWithDSN(dsn)
 	executor := transactions.NewDBExecutor(db)
@@ -47,7 +46,6 @@ func TestUserRepo_GetByUsername(t *testing.T) {
 
 func TestUserRepo_CreateUser(t *testing.T) {
 	dsn := testutils.StartPostgres(t)
-	testutils.RunMigrations(t, dsn)
 
 	db := database.NewPostgresConnectionWithDSN(dsn)
 	executor := transactions.NewDBExecutor(db)
@@ -95,7 +93,6 @@ func TestUserRepo_CreateUser(t *testing.T) {
 
 func TestUserRepo_ChangeBalance(t *testing.T) {
 	dsn := testutils.StartPostgres(t)
-	testutils.RunMigrations(t, dsn)
 
 	db := database.NewPostgresConnectionWithDSN(dsn)
 	executor := transactions.NewDBExecutor(db)
