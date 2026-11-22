@@ -65,6 +65,11 @@ func NewUserInfoResponse(userInfo *UserInfo) *InfoResponse {
 }
 
 func (is *InfoService) GetUserInfo(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+
+	}
 	username, _ := middleware.GetUsernameFromCtx(r.Context())
 	userInfo, err := is.CollectUserInformation(r.Context(), username)
 	if err != nil {
