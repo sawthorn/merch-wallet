@@ -19,9 +19,13 @@ func RunMigrations(dsn string) error {
 		"up",
 	)
 
-	_, err = cmd.CombinedOutput()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("migration failed: %w", err)
+		return fmt.Errorf(
+			"migration failed: %w\noutput:\n%s",
+			err,
+			output,
+		)
 	}
 
 	return nil
