@@ -15,7 +15,7 @@ import (
 )
 
 func TestTransferRepo_CreateTransfer(t *testing.T) {
-	dsn := testutils.StartPostgres(t)
+	dsn, _ := testutils.StartPostgresForTest(t)
 
 	conn := database.NewPostgresConnectionWithDSN(dsn)
 	ex := transactions.NewDBExecutor(conn)
@@ -98,7 +98,7 @@ func TestTransferRepo_CreateTransfer(t *testing.T) {
 }
 
 func TestTransferRepo_GetHistory_Both(t *testing.T) {
-	dsn := testutils.StartPostgres(t)
+	dsn, _ := testutils.StartPostgresForTest(t)
 
 	conn := database.NewPostgresConnectionWithDSN(dsn)
 	ex := transactions.NewDBExecutor(conn)

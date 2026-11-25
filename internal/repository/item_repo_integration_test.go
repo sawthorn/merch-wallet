@@ -15,7 +15,7 @@ import (
 )
 
 func TestItemRepo_GetItemByName(t *testing.T) {
-	dsn := testutils.StartPostgres(t)
+	dsn, _ := testutils.StartPostgresForTest(t)
 
 	conn := database.NewPostgresConnectionWithDSN(dsn)
 	executor := transactions.NewDBExecutor(conn)

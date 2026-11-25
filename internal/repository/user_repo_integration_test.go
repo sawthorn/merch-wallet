@@ -15,7 +15,7 @@ import (
 )
 
 func TestUserRepo_GetByUsername(t *testing.T) {
-	dsn := testutils.StartPostgres(t)
+	dsn, _ := testutils.StartPostgresForTest(t)
 
 	db := database.NewPostgresConnectionWithDSN(dsn)
 	executor := transactions.NewDBExecutor(db)
@@ -45,7 +45,7 @@ func TestUserRepo_GetByUsername(t *testing.T) {
 }
 
 func TestUserRepo_CreateUser(t *testing.T) {
-	dsn := testutils.StartPostgres(t)
+	dsn, _ := testutils.StartPostgresForTest(t)
 
 	db := database.NewPostgresConnectionWithDSN(dsn)
 	executor := transactions.NewDBExecutor(db)
@@ -92,7 +92,7 @@ func TestUserRepo_CreateUser(t *testing.T) {
 }
 
 func TestUserRepo_ChangeBalance(t *testing.T) {
-	dsn := testutils.StartPostgres(t)
+	dsn, _ := testutils.StartPostgresForTest(t)
 
 	db := database.NewPostgresConnectionWithDSN(dsn)
 	executor := transactions.NewDBExecutor(db)

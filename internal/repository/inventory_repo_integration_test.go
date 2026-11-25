@@ -15,7 +15,7 @@ import (
 )
 
 func TestInventoryRepo_AddItemToUserInventory(t *testing.T) {
-	dsn := testutils.StartPostgres(t)
+	dsn, _ := testutils.StartPostgresForTest(t)
 
 	db := database.NewPostgresConnectionWithDSN(dsn)
 	ex := transactions.NewDBExecutor(db)
@@ -96,7 +96,7 @@ func TestInventoryRepo_AddItemToUserInventory(t *testing.T) {
 }
 
 func TestInventoryRepo_GetUserInventory(t *testing.T) {
-	dsn := testutils.StartPostgres(t)
+	dsn, _ := testutils.StartPostgresForTest(t)
 
 	db := database.NewPostgresConnectionWithDSN(dsn)
 	ex := transactions.NewDBExecutor(db)

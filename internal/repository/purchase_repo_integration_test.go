@@ -15,7 +15,7 @@ import (
 )
 
 func TestPurchaseRepo_CreatePurchase(t *testing.T) {
-	dsn := testutils.StartPostgres(t)
+	dsn, _ := testutils.StartPostgresForTest(t)
 
 	conn := database.NewPostgresConnectionWithDSN(dsn)
 	ex := transactions.NewDBExecutor(conn)
